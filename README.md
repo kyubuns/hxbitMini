@@ -1,10 +1,11 @@
-# HxBit
+# HxBitMini
 
-HxBit is a binary serialization and network synchronization library for Haxe.
+HxBitMini is a binary serialization library for Haxe.  
+Forked from [HxBit](https://github.com/HeapsIO/hxbit).
 
 ## Installation
 
-Install through haxelib with `haxelib install hxbit` and use `-lib hxbit` to use it.
+TBD
 
 ## Serialization
 
