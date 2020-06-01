@@ -576,7 +576,7 @@ class Macros {
 		fields.push({
 			name : "initCLID",
 			pos : pos,
-			access : access.concat([AStatic]),
+			access : [AStatic, APublic],
 			meta : noCompletion,
 			kind : FFun({ args : [], ret : null , expr : macro __clid = @:privateAccess hxbitmini.Serializer.registerClass($p{clName}) }),
 		});
