@@ -571,7 +571,14 @@ class Macros {
 			pos : pos,
 			access : [AStatic],
 			meta : noCompletion,
-			kind : FVar(macro : Int, macro @:privateAccess hxbitmini.Serializer.registerClass($p{clName})),
+			kind : FVar(macro : Int),
+		});
+		fields.push({
+			name : "initCLID",
+			pos : pos,
+			access : access.concat([AStatic]),
+			meta : noCompletion,
+			kind : FFun({ args : [], ret : null , expr : macro __clid = @:privateAccess hxbitmini.Serializer.registerClass($p{clName}) }),
 		});
 		fields.push({
 			name : "getCLID",
@@ -901,6 +908,28 @@ class Macros {
 		default:
 			haxe.macro.ExprTools.iter(e, function(e) replaceSetter(fname,setExpr,e));
 		}
+	}
+
+	public static function buildSerializer() {
+		var fields = Context.getBuildFields();
+		var pos = Context.currentPos();
+		var noCompletion = [{ name : ":noCompletion", pos : pos }];
+
+		fields.push({
+			name : "initCLIDS",
+			pos : pos,
+			access : [AStatic, APrivate],
+			meta : noCompletion,
+			kind : FFun({ args : [], ret : null , expr : macro {
+				var serializables = CompileTime.getAllClasses(Serializable);
+				for( cl in serializables ) {
+					var fl : Dynamic = Reflect.field(cl, "initCLID");
+					Reflect.callMethod(cl, fl, []);
+				}
+			} }),
+		});
+
+		return fields;
 	}
 
 	#end

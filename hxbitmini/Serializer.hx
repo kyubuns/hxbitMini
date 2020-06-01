@@ -23,6 +23,7 @@ package hxbitmini;
 
 #if !macro
 
+@:build(hxbitmini.Macros.buildSerializer())
 class Serializer {
 
 	static var SEQ = 0;
@@ -105,7 +106,10 @@ class Serializer {
 	var knownStructs : Array<StructSerializable>;
 
 	public function new() {
-		if( CLIDS == null ) initClassIDS();
+		if( CLIDS == null ) {
+			initCLIDS();
+			initClassIDS();
+		}
 	}
 
 	public function begin() {
