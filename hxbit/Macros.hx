@@ -51,9 +51,6 @@ enum PropTypeDesc<PropType> {
 typedef PropType = {
 	var d : PropTypeDesc<PropType>;
 	var t : ComplexType;
-	@:optional var increment : Float;
-	@:optional var condSend : Expr;
-	@:optional var notMutable : Bool;
 }
 
 class Macros {
@@ -148,31 +145,6 @@ class Macros {
 			switch( m.name ) {
 			case ":s", ":optional":
 				//
-			case ":increment":
-				var inc : Null<Float> = null;
-				if( m.params.length == 1 )
-					switch( m.params[0].expr ) {
-					case EConst(CInt(i)): inc = Std.parseInt(i);
-					case EConst(CFloat(f)): inc = Std.parseFloat(f);
-					default:
-					}
-				if( inc == null )
-					Context.error("Increment requires value parameter", m.pos);
-				switch( t.d ) {
-				case PFloat, PNull({ d : PFloat }):
-					t.increment = inc;
-				default:
-					Context.error("Increment not allowed on " + t.t.toString(), m.pos);
-				}
-			case ":condSend" if( m.params.length == 1 ):
-				t.condSend = m.params[0];
-				switch( t.condSend.expr ) {
-				case EConst(CIdent("false")):
-					t.notMutable = true;
-				default:
-				}
-			case ":notMutable":
-				t.notMutable = true;
 			default:
 				if(m.name.charAt(0) == ":")
 					Context.error("Unsupported network metadata", m.pos);
@@ -194,7 +166,6 @@ class Macros {
 	}
 
 	static function getPropType( t : haxe.macro.Type ) : PropType {
-		var isMutable = true;
 		var desc = switch( t ) {
 		case TAbstract(a, pl):
 			switch( a.toString() ) {
@@ -244,16 +215,12 @@ class Macros {
 		case TAnonymous(a):
 			var a = a.get();
 			var fields = [];
-			isMutable = false;
 			for( f in a.fields ) {
 				if( f.meta.has(":noSerialize") )
 					continue;
 				var ft = getPropField(f.type, f.meta.get());
 				if( ft == null ) return null;
 				fields.push( { name : f.name, type : ft, opt : f.meta.has(":optional") } );
-				#if (haxe_ver >= 4)
-				if( !f.isFinal ) isMutable = true;
-				#end
 			}
 			PObj(fields);
 		case TInst(c, pl):
@@ -302,7 +269,6 @@ class Macros {
 			d : desc,
 			t : t.toComplexType(),
 		};
-		if( !isMutable ) p.notMutable = true;
 		return p;
 	}
 
@@ -935,38 +901,6 @@ class Macros {
 		default:
 			haxe.macro.ExprTools.iter(e, function(e) replaceSetter(fname,setExpr,e));
 		}
-	}
-
-	static function makeMarkExpr( fields : Array<Field>, fname : String, t : PropType, mark : Expr ) {
-		var rname = "__ref_" + fname;
-		var needRef = false;
-		if( t.increment != null ) {
-			needRef = true;
-			mark = macro if( Math.floor(v / $v{t.increment}) != this.$rname ) { this.$rname = Math.floor(v / $v{t.increment}); $mark; };
-		}
-		if( t.condSend != null ) {
-			function loop(e:Expr) {
-				switch( e.expr ) {
-				case EConst(CIdent("current")):
-					return { expr : EConst(CIdent(rname)), pos : e.pos };
-				default:
-					return haxe.macro.ExprTools.map(e, loop);
-				}
-			}
-			if( t.condSend.expr.match(EConst(CIdent("false"))) )
-				return macro {}; // no marking
-			var condSend = loop(t.condSend);
-			needRef = true;
-			mark = macro if( $condSend ) { this.$rname = v; $mark; };
-		}
-		if( needRef && fields != null )
-			fields.push({
-				name : rname,
-				pos : mark.pos,
-				meta : [{ name : ":noCompletion", pos : mark.pos }],
-				kind : FVar(t.t,macro 0),
-			});
-		return mark;
 	}
 
 	#end
