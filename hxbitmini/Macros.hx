@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-package hxbit;
+package hxbitmini;
 
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -64,7 +64,7 @@ class Macros {
 			Context.error("Unsupported serializable type " + t.toString(), v.pos);
 			return macro { };
 		}
-		IN_ENUM_SER = StringTools.startsWith(Context.getLocalClass().toString(), "hxbit.enumSer.");
+		IN_ENUM_SER = StringTools.startsWith(Context.getLocalClass().toString(), "hxbitmini.enumSer.");
 		return withPos(serializeExpr(ctx, v, pt),v.pos);
 	}
 
@@ -74,7 +74,7 @@ class Macros {
 		if( pt == null ) {
 			return macro { };
 		}
-		IN_ENUM_SER = StringTools.startsWith(Context.getLocalClass().toString(), "hxbit.enumSer.");
+		IN_ENUM_SER = StringTools.startsWith(Context.getLocalClass().toString(), "hxbitmini.enumSer.");
 		return withPos(unserializeExpr(ctx, v, pt, depth),v.pos);
 	}
 
@@ -130,11 +130,11 @@ class Macros {
 	}
 
 	static function isSerializable( c : Ref<ClassType> ) {
-		return lookupInterface(c, "hxbit.Serializable");
+		return lookupInterface(c, "hxbitmini.Serializable");
 	}
 
 	static function isStructSerializable( c : Ref<ClassType> ) {
-		return lookupInterface(c, "hxbit.StructSerializable");
+		return lookupInterface(c, "hxbitmini.StructSerializable");
 	}
 
 	static function getPropField( ft : Type, meta : Metadata ) {
@@ -306,13 +306,13 @@ class Macros {
 			var vt = vt.t;
 			var vk = { expr : EConst(CIdent("k")), pos : v.pos };
 			var vv = { expr : EConst(CIdent("v")), pos : v.pos };
-			return macro $ctx.addMap($v, function(k:$kt) return hxbit.Macros.serializeValue($ctx, $vk), function(v:$vt) return hxbit.Macros.serializeValue($ctx, $vv));
+			return macro $ctx.addMap($v, function(k:$kt) return hxbitmini.Macros.serializeValue($ctx, $vk), function(v:$vt) return hxbitmini.Macros.serializeValue($ctx, $vv));
 		case PEnum(_):
 			var et = t.t;
 			var ser = "serialize";
 			if( IN_ENUM_SER )
 				ser += "2";
-			return macro (null : hxbit.Serializable.SerializableEnum<$et>).$ser($ctx,$v);
+			return macro (null : hxbitmini.Serializable.SerializableEnum<$et>).$ser($ctx,$v);
 		case PObj(fields):
 			var nullables = [for( f in fields ) if( isNullable(f.type) ) f];
 			var ct = t.t;
@@ -336,9 +336,9 @@ class Macros {
 							var nidx = nullables.indexOf(f);
 							var name = f.name;
 							if( nidx < 0 )
-								macro hxbit.Macros.serializeValue($ctx, v.$name);
+								macro hxbitmini.Macros.serializeValue($ctx, v.$name);
 							else
-								macro if( fbits & $v{1<<nidx} != 0 ) hxbit.Macros.serializeValue($ctx, v.$name);
+								macro if( fbits & $v{1<<nidx} != 0 ) hxbitmini.Macros.serializeValue($ctx, v.$name);
 						}
 					]};
 				}
@@ -348,11 +348,11 @@ class Macros {
 		case PArray(t):
 			var at = t.t;
 			var ve = { expr : EConst(CIdent("e")), pos : v.pos };
-			return macro $ctx.addArray($v, function(e:$at) return hxbit.Macros.serializeValue($ctx, $ve));
+			return macro $ctx.addArray($v, function(e:$at) return hxbitmini.Macros.serializeValue($ctx, $ve));
 		case PVector(t):
 			var at = t.t;
 			var ve = { expr : EConst(CIdent("e")), pos : v.pos };
-			return macro $ctx.addVector($v, function(e:$at) return hxbit.Macros.serializeValue($ctx, $ve));
+			return macro $ctx.addVector($v, function(e:$at) return hxbitmini.Macros.serializeValue($ctx, $ve));
 		case PSerializable(_):
 			return macro $ctx.addKnownRef($v);
 		case PAlias(t):
@@ -393,14 +393,14 @@ class Macros {
 			return macro {
 				var $kname : $kt;
 				var $vname : $vt;
-				$v = $ctx.getMap(function() { hxbit.Macros.unserializeValue($ctx, $vk, $v{depth + 1}); return $vk; }, function() { hxbit.Macros.unserializeValue($ctx, $vv, $v{depth+1}); return $vv; });
+				$v = $ctx.getMap(function() { hxbitmini.Macros.unserializeValue($ctx, $vk, $v{depth + 1}); return $vk; }, function() { hxbitmini.Macros.unserializeValue($ctx, $vv, $v{depth+1}); return $vv; });
 			};
 		case PEnum(_):
 			var et = t.t;
 			var unser = "unserialize";
 			if( IN_ENUM_SER )
 				unser += "2";
-			return macro { var __e : $et; __e = (null : hxbit.Serializable.SerializableEnum<$et>).$unser($ctx); $v = __e; }
+			return macro { var __e : $et; __e = (null : hxbitmini.Serializable.SerializableEnum<$et>).$unser($ctx); $v = __e; }
 		case PObj(fields):
 			var nullables = [for( f in fields ) if( isNullable(f.type) ) f];
 			if( nullables.length >= 32 )
@@ -422,10 +422,10 @@ class Macros {
 							vars.push( { field : name, expr : { expr : EConst(CIdent(name)), pos:v.pos } } );
 							if( nidx < 0 ) {
 								exprs.unshift(macro var $name : $ct);
-								exprs.push(macro hxbit.Macros.unserializeValue($ctx, $i{name}, $v{depth+1}));
+								exprs.push(macro hxbitmini.Macros.unserializeValue($ctx, $i{name}, $v{depth+1}));
 							} else {
 								exprs.unshift(macro var $name : $ct = null);
-								exprs.push(macro if( fbits & $v { 1 << nidx } != 0 ) hxbit.Macros.unserializeValue($ctx, $i{name}, $v{depth+1}));
+								exprs.push(macro if( fbits & $v { 1 << nidx } != 0 ) hxbitmini.Macros.unserializeValue($ctx, $i{name}, $v{depth+1}));
 							}
 						}
 						exprs.push( { expr : EBinop(OpAssign,v, { expr : EObjectDecl(vars), pos:v.pos } ), pos:v.pos } );
@@ -441,7 +441,7 @@ class Macros {
 			var ename = "e" + depth;
 			return macro {
 				var $ename : $at;
-				$v = $ctx.getArray(function() { hxbit.Macros.unserializeValue($ctx, $i{ename}, $v{depth+1}); return $i{ename}; });
+				$v = $ctx.getArray(function() { hxbitmini.Macros.unserializeValue($ctx, $i{ename}, $v{depth+1}); return $i{ename}; });
 			};
 		case PVector(at):
 			var at = at.t;
@@ -449,7 +449,7 @@ class Macros {
 			var ename = "e" + depth;
 			return macro {
 				var $ename : $at;
-				$v = $ctx.getVector(function() { hxbit.Macros.unserializeValue($ctx, $i{ename}, $v{depth+1}); return $i{ename}; });
+				$v = $ctx.getVector(function() { hxbitmini.Macros.unserializeValue($ctx, $i{ename}, $v{depth+1}); return $i{ename}; });
 			};
 		case PSerializable(_):
 			function loop(t:ComplexType) {
@@ -556,8 +556,8 @@ class Macros {
 		for( f in toSerialize ) {
 			var fname = f.f.name;
 			var ef = useStaticSer ? macro __this.$fname : macro this.$fname;
-			el.push(withPos(macro hxbit.Macros.serializeValue(__ctx,$ef),f.f.pos));
-			ul.push(withPos(macro hxbit.Macros.unserializeValue(__ctx, $ef),f.f.pos));
+			el.push(withPos(macro hxbitmini.Macros.serializeValue(__ctx,$ef),f.f.pos));
+			ul.push(withPos(macro hxbitmini.Macros.unserializeValue(__ctx, $ef),f.f.pos));
 		}
 
 		var noCompletion = [{ name : ":noCompletion", pos : pos }];
@@ -571,7 +571,7 @@ class Macros {
 			pos : pos,
 			access : [AStatic],
 			meta : noCompletion,
-			kind : FVar(macro : Int, macro @:privateAccess hxbit.Serializer.registerClass($p{clName})),
+			kind : FVar(macro : Int, macro @:privateAccess hxbitmini.Serializer.registerClass($p{clName})),
 		});
 		fields.push({
 			name : "getCLID",
@@ -591,7 +591,7 @@ class Macros {
 				access : [AStatic],
 				meta : noCompletion,
 				kind : FFun({
-					args : [ { name : "__ctx", type : macro : hxbit.Serializer }, { name : "__this", type : TPath({ pack : [], name : cl.name }) } ],
+					args : [ { name : "__ctx", type : macro : hxbitmini.Serializer }, { name : "__this", type : TPath({ pack : [], name : cl.name }) } ],
 					ret : null,
 					expr : macro $b{el},
 				}),
@@ -601,7 +601,7 @@ class Macros {
 				pos : pos,
 				access : access,
 				kind : FFun({
-					args : [ { name : "__ctx", type : macro : hxbit.Serializer } ],
+					args : [ { name : "__ctx", type : macro : hxbitmini.Serializer } ],
 					ret : null,
 					expr : macro @:privateAccess {
 						${ if( isSubSer ) macro super.serialize(__ctx) else macro { } };
@@ -612,7 +612,7 @@ class Macros {
 			});
 			var schema = [for( s in toSerialize ) {
 				var name = s.f.name;
-				macro { schema.fieldsNames.push($v{name}); schema.fieldsTypes.push(hxbit.Macros.getFieldType(this.$name)); }
+				macro { schema.fieldsNames.push($v{name}); schema.fieldsTypes.push(hxbitmini.Macros.getFieldType(this.$name)); }
 			}];
 			fields.push({
 				name : "getSerializeSchema",
@@ -623,9 +623,9 @@ class Macros {
 					args : [],
 					ret : null,
 					expr : macro {
-						var schema = ${if( isSubSer ) macro super.getSerializeSchema() else macro new hxbit.Schema()};
+						var schema = ${if( isSubSer ) macro super.getSerializeSchema() else macro new hxbitmini.Schema()};
 						$b{schema};
-						schema.isFinal = hxbit.Serializer.isClassFinal(__clid);
+						schema.isFinal = hxbitmini.Serializer.isClassFinal(__clid);
 						return schema;
 					}
 				})
@@ -660,7 +660,7 @@ class Macros {
 						switch( e.expr ) {
 						case ECall( { expr : EField( { expr : EConst(CIdent("super")) }, "unserialize") }, [ctx]):
 							found = true;
-							return macro { var __ctx : hxbit.Serializer = $ctx; $unserExpr; }
+							return macro { var __ctx : hxbitmini.Serializer = $ctx; $unserExpr; }
 						default:
 							return haxe.macro.ExprTools.map(e, repl);
 						}
@@ -681,7 +681,7 @@ class Macros {
 				access : [AStatic],
 				meta : noCompletion,
 				kind : FFun({
-					args : [ { name : "__ctx", type : macro : hxbit.Serializer }, { name : "__this", type : TPath({ pack : [], name : cl.name }) } ],
+					args : [ { name : "__ctx", type : macro : hxbitmini.Serializer }, { name : "__this", type : TPath({ pack : [], name : cl.name }) } ],
 					ret : null,
 					expr : macro $b{ul},
 				}),
@@ -692,7 +692,7 @@ class Macros {
 				pos : pos,
 				access : access,
 				kind : FFun({
-					args : [ { name : "__ctx", type : macro : hxbit.Serializer } ],
+					args : [ { name : "__ctx", type : macro : hxbitmini.Serializer } ],
 					ret : null,
 					expr : unserExpr,
 				}),
@@ -716,7 +716,7 @@ class Macros {
 			var name = getNativePath(e).split(".").join("_");
 			name = name.charAt(0).toUpperCase() + name.substr(1);
 			try {
-				return Context.getType("hxbit.enumSer." + name);
+				return Context.getType("hxbitmini.enumSer." + name);
 			} catch( _ : Dynamic ) {
 				var pos = Context.currentPos();
 				var cases = [], ucases = [], schemaExprs = [];
@@ -726,7 +726,7 @@ class Macros {
 					var c = e.constructs.get(f);
 					switch( Context.follow(c.type) ) {
 					case TFun(args, _):
-						var eargs = [for( a in args ) { var arg = { expr : EConst(CIdent(a.name)), pos : c.pos }; macro hxbit.Macros.serializeValue(ctx, $arg); }];
+						var eargs = [for( a in args ) { var arg = { expr : EConst(CIdent(a.name)), pos : c.pos }; macro hxbitmini.Macros.serializeValue(ctx, $arg); }];
 						cases.push({
 							values : [{ expr : ECall({ expr : EConst(CIdent(c.name)), pos : pos },[for( a in args ) { expr : EConst(CIdent(a.name)), pos : pos }]), pos : pos }],
 							expr : macro {
@@ -740,8 +740,8 @@ class Macros {
 							var aname = "_" + a.name;
 							var at = haxe.macro.TypeTools.applyTypeParameters(a.t,e.params,tparams).toComplexType();
 							evals.push(macro var $aname : $at);
-							evals.push(macro hxbit.Macros.unserializeValue(ctx,$i{aname}));
-							etypes.push(macro { var v : $at; hxbit.Macros.getFieldType(v); });
+							evals.push(macro hxbitmini.Macros.unserializeValue(ctx,$i{aname}));
+							etypes.push(macro { var v : $at; hxbitmini.Macros.getFieldType(v); });
 						}
 						evals.push({ expr : ECall({ expr : EConst(CIdent(c.name)), pos : pos },[for( a in args ) { expr : EConst(CIdent("_"+a.name)), pos : pos }]), pos : pos });
 						ucases.push({
@@ -766,7 +766,7 @@ class Macros {
 				}
 				var t : TypeDefinition = {
 					name : name,
-					pack : ["hxbit","enumSer"],
+					pack : ["hxbitmini","enumSer"],
 					kind : TDClass(),
 					fields : [
 					{
@@ -774,7 +774,7 @@ class Macros {
 						access : [AStatic],
 						pos : pos,
 						kind : FFun( {
-							args : [{ name : "ctx", type : macro : hxbit.Serializer },{ name : "v", type : pt.toComplexType() }],
+							args : [{ name : "ctx", type : macro : hxbitmini.Serializer },{ name : "v", type : pt.toComplexType() }],
 							expr : macro @:privateAccess if( v == null ) ctx.addByte(0) else ${{ expr : ESwitch(macro v,cases,null), pos : pos }},
 							ret : macro : Void,
 						}),
@@ -783,7 +783,7 @@ class Macros {
 						access : [AStatic],
 						pos : pos,
 						kind : FFun( {
-							args : [{ name : "ctx", type : macro : hxbit.Serializer }],
+							args : [{ name : "ctx", type : macro : hxbitmini.Serializer }],
 							expr : macro @:privateAccess {
 								var b = ctx.getByte();
 								if( b == 0 )
@@ -796,12 +796,12 @@ class Macros {
 					},{
 						name : "getSchema",
 						access : [AStatic, APublic],
-						meta : [{name:":ifFeature",pos:pos, params:[macro "hxbit.Dump.readValue"]}],
+						meta : [{name:":ifFeature",pos:pos, params:[macro "hxbitmini.Dump.readValue"]}],
 						pos : pos,
 						kind : FFun( {
 							args : [],
 							expr : macro { var s = new Schema(); $b{schemaExprs}; return s; },
-							ret : macro : hxbit.Schema,
+							ret : macro : hxbitmini.Schema,
 						}),
 					},{
 						name : "serialize",
@@ -809,7 +809,7 @@ class Macros {
 						meta : [{name:":extern",pos:pos}],
 						pos : pos,
 						kind : FFun( {
-							args : [{ name : "ctx", type : macro : hxbit.Serializer },{ name : "v", type : pt.toComplexType() }],
+							args : [{ name : "ctx", type : macro : hxbitmini.Serializer },{ name : "v", type : pt.toComplexType() }],
 							expr : macro doSerialize(ctx,v),
 							ret : null,
 						}),
@@ -819,7 +819,7 @@ class Macros {
 						meta : [{name:":extern",pos:pos}],
 						pos : pos,
 						kind : FFun( {
-							args : [{ name : "ctx", type : macro : hxbit.Serializer }],
+							args : [{ name : "ctx", type : macro : hxbitmini.Serializer }],
 							expr : macro return doUnserialize(ctx),
 							ret : null,
 						}),
@@ -836,7 +836,7 @@ class Macros {
 				t.fields.push(tf);
 
 				Context.defineType(t);
-				return Context.getType("hxbit.enumSer." + name);
+				return Context.getType("hxbitmini.enumSer." + name);
 			}
 		default:
 		}

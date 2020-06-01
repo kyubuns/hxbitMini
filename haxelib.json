@@ -1,8 +1,8 @@
 {
-	"name" : "hxbit",
-	"url" : "https://github.com/ncannasse/hxbit",
+	"name" : "hxbitmini",
+	"url" : "https://github.com/kyubuns/hxbitmini",
 	"license" : "BSD",
-    "description" : "Binary serialization and network synchronization library",
+    "description" : "Binary serialization library",
     "version" : "1.5.0",
 	"releasenote" : "",
 	"contributors" : ["ncannasse"],

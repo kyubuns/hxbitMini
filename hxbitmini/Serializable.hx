@@ -19,11 +19,11 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-package hxbit;
+package hxbitmini;
 
 #if !macro
 
-@:autoBuild(hxbit.Macros.buildSerializable())
+@:autoBuild(hxbitmini.Macros.buildSerializable())
 /**
   These fields are automatically generated when implementing the interface.
 **/
@@ -40,7 +40,7 @@ interface Serializable {
 	public function getSerializeSchema() : Schema;
 }
 
-@:genericBuild(hxbit.Macros.buildSerializableEnum())
+@:genericBuild(hxbitmini.Macros.buildSerializableEnum())
 class SerializableEnum<T> {
 }
 

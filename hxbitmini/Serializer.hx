@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-package hxbit;
+package hxbitmini;
 
 #if !macro
 
@@ -679,7 +679,7 @@ class Serializer {
 		if( Convert.sameType(from,to) )
 			return v;
 
-		var conv = @:privateAccess hxbit.Convert.convFuns.get(path);
+		var conv = @:privateAccess hxbitmini.Convert.convFuns.get(path);
 		if( conv != null )
 			return conv(v);
 
@@ -758,7 +758,7 @@ class Serializer {
 		if( cl != null ) return cl;
 		var path = name.split(".").join("_");
 		path = path.charAt(0).toUpperCase() + path.substr(1);
-		cl = Type.resolveClass("hxbit.enumSer." + path);
+		cl = Type.resolveClass("hxbitmini.enumSer." + path);
 		if( cl != null ) ENUM_CLASSES.set(name,cl);
 		return cl;
 	}

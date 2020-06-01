@@ -9,10 +9,10 @@ TBD
 
 ## Serialization
 
-You can serialize objects by implementing the `hxbit.Serializable` interface. You need to specify which fields you want to serialize by using the `@:s` metadata:
+You can serialize objects by implementing the `hxbitmini.Serializable` interface. You need to specify which fields you want to serialize by using the `@:s` metadata:
 
 ```haxe
-class User implements hxbit.Serializable {
+class User implements hxbitmini.Serializable {
     @:s public var name : String;
     @:s public var age : Int;
     @:s public var friends : Array<User>;
@@ -30,21 +30,21 @@ interface Serializable {
 	/** Returns the unique class id for this object **/
 	public function getCLID() : Int;
 	/** Serialize the object id and fields using this Serializer **/
-	public function serialize( ctx : hxbit.Serializer ) : Void;
+	public function serialize( ctx : hxbitmini.Serializer ) : Void;
 	/** Unserialize object fields using this Serializer **/  
-	public function unserialize( ctx : hxbit.Serializer ) : Void;
+	public function unserialize( ctx : hxbitmini.Serializer ) : Void;
 	/** Returns the object data schema **/  
-	public function getSerializeSchema() : hxbit.Schema;
+	public function getSerializeSchema() : hxbitmini.Schema;
 }
 ```
 
 This allows you to serialize/unserialize using this code:
 
 ```haxe
-var s = new hxbit.Serializer();
+var s = new hxbitmini.Serializer();
 var bytes = s.serialize(user);
 ....
-var u = new hxbit.Serializer();
+var u = new hxbitmini.Serializer();
 var user = u.unserialize(bytes, User);
 ....
 ```
@@ -76,7 +76,7 @@ The following types are supported:
 When unserializing, the class constructor is not called. If you want to have some non-serialized field already initialized before starting unserialization, you can set the default value using Haxe initializers:
 
 ```haxe
-class User implements hxbit.Serializable {
+class User implements hxbitmini.Serializable {
     ...
     // when unserializing, someOtherField will be set to [] instead of null
     var someOtherField : Array<Int> = []; 
@@ -88,21 +88,21 @@ class User implements hxbit.Serializable {
 If you want to serialize unsupported types, you could implement your own serialization through the optional methods `customSerialize` and `customUnserialize`.
 
 ```haxe
-class Float32ArrayContainer implements hxbit.Serializable {
+class Float32ArrayContainer implements hxbitmini.Serializable {
 
     public var value:Float32Array;
 
     ...
 
     @:keep
-    public function customSerialize(ctx : hxbit.Serializer) {
+    public function customSerialize(ctx : hxbitmini.Serializer) {
         ctx.addInt(value.length);
         for(i in 0...value.length)
             ctx.addFloat(value[i]);
     }
 
     @:keep
-    public function customUnserialize(ctx : hxbit.Serializer) {
+    public function customUnserialize(ctx : hxbitmini.Serializer) {
         var length = ctx.getInt();
         var tempArray = new Array<Float>();
         for(i in 0...length)
@@ -120,7 +120,7 @@ HxBit serialization is capable of performing versioning, by storing in serialize
 In order to save some data with versioning, use the following:
 
 ```haxe
-var s = new hxbit.Serializer();
+var s = new hxbitmini.Serializer();
 s.beginSave();
 // ... serialize your data...
 var bytes = s.endSave();
@@ -129,7 +129,7 @@ var bytes = s.endSave();
 And in order to load versionned data, use:
 
 ```haxe
-var s = new hxbit.Serializer();
+var s = new hxbitmini.Serializer();
 s.beginLoad(bytes);
 // .. unserializer your data
 ```

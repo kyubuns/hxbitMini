@@ -1,4 +1,4 @@
-package hxbit;
+package hxbitmini;
 
 class Dump extends Serializer {
 
@@ -118,7 +118,7 @@ class Dump extends Serializer {
 			index--;
 			var s = cachedEnum.get(name);
 			if( s == null ) {
-				var ser : Dynamic = Type.resolveClass("hxbit.enumSer." + name.split(".").join("_"));
+				var ser : Dynamic = Type.resolveClass("hxbitmini.enumSer." + name.split(".").join("_"));
 				if( ser == null ) throw "No enum unserializer found for " + name;
 				s = ser.getSchema();
 				cachedEnum.set(name, s);

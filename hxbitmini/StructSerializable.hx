@@ -1,4 +1,4 @@
-package hxbit;
+package hxbitmini;
 
 /**
 	Struct serializable are more lightweight (no versioning etc.) than normal Serializable but a bit larger when serializing.
