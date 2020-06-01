@@ -15,29 +15,29 @@ Forked from [HxBit](https://github.com/HeapsIO/hxbit).
 
 ```haxe
 class Sample {
-	static function main() {
-		var target = new ElementList([new Element(1, 2), new Element(3, 4)]);
-		var element = (new hxbit.Serializer()).serialize(target);
-		trace(element.toHex());
-	}
+    static function main() {
+        var target = new ElementList([new Element(1, 2), new Element(3, 4)]);
+        var element = (new hxbit.Serializer()).serialize(target);
+        trace(element.toHex());
+    }
 }
 
 class ElementList implements hxbit.Serializable {
-	public function new(a: Array<Element>) {
-		this.a = a;
-	}
+    public function new(a: Array<Element>) {
+        this.a = a;
+    }
 
-	@:s public var a: Array<Element>;
+    @:s public var a: Array<Element>;
 }
 
 class Element implements hxbit.Serializable {
-	public function new(a: Int, b: Int) {
-		this.a = a;
-		this.b = b;
-	}
+    public function new(a: Int, b: Int) {
+        this.a = a;
+        this.b = b;
+    }
 
-	@:s public var a: Int;
-	@:s public var b: Int;
+    @:s public var a: Int;
+    @:s public var b: Int;
 }
 ```
 
@@ -47,29 +47,29 @@ class Element implements hxbit.Serializable {
 
 ```haxe
 class Sample {
-	static function main() {
-		var target = new ElementList([new Element(1, 2), new Element(3, 4)]);
-		var element = (new hxbitmini.Serializer()).serialize(target);
-		trace(element.toHex());
-	}
+    static function main() {
+        var target = new ElementList([new Element(1, 2), new Element(3, 4)]);
+        var element = (new hxbitmini.Serializer()).serialize(target);
+        trace(element.toHex());
+    }
 }
 
 class ElementList implements hxbitmini.Serializable {
-	public function new(a: Array<Element>) {
-		this.a = a;
-	}
+    public function new(a: Array<Element>) {
+        this.a = a;
+    }
 
-	@:s public var a: Array<Element>;
+    @:s public var a: Array<Element>;
 }
 
 class Element implements hxbitmini.Serializable {
-	public function new(a: Int, b: Int) {
-		this.a = a;
-		this.b = b;
-	}
+    public function new(a: Int, b: Int) {
+        this.a = a;
+        this.b = b;
+    }
 
-	@:s public var a: Int;
-	@:s public var b: Int;
+    @:s public var a: Int;
+    @:s public var b: Int;
 }
 ```
 
@@ -80,9 +80,14 @@ The difference is more pronounced when many classes are included.
 
 Just rewrite the hxbit to hxbitmini.
 
+## Compatible with hxbit
+
+HxBitMini 1.0.0 is forked from code newer than HxBit 1.5.0. (The latest version that is now available to the public)  
+Please check [Network graph](https://github.com/HeapsIO/hxbit/network).
+
 ## Installation
 
-TBD
+Install through haxelib with `haxelib install hxbitmini` and use `-lib hxbitmini` to use it.
 
 ## Serialization
 
@@ -145,7 +150,7 @@ The following types are supported:
   - Array&lt;T&gt; and haxe.ds.Vector&lt;T&gt; : stored as size+1 prefix, then T list (0 prefix = null)
   - Map&lt;K,V&gt; : stored as size+1 prefix, then (K,V) pairs (0 prefix = null)
   - Null&lt;T&gt; : stored as a byte 0 for null, 1 followed by T either
-  - Serializable (any other serializable instance) : stored with __uid, then class id and data if if was not already serialized
+  - Serializable (any other serializable instance) : store `@:s` values
   - Strutures { field : T... } : optimized to store a bit field of not null values, then only defined fields values 
 
 ### Default values
