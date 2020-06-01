@@ -39,10 +39,7 @@ class Schema implements Serializable {
 	function get_checkSum() {
 		var s = new Serializer();
 		s.begin();
-		var old = __uid;
-		__uid = 0;
 		s.addKnownRef(this);
-		__uid = old;
 		var bytes = s.end();
 		return haxe.crypto.Crc32.make(bytes);
 	}

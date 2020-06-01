@@ -28,8 +28,6 @@ package hxbit;
   These fields are automatically generated when implementing the interface.
 **/
 interface Serializable {
-	/** Unique identifier for the object, automatically set on new() **/
-	public var __uid : Int;
 	/** Returns the unique class id for this object **/
 	public function getCLID() : Int;
 	/** Serialize the object id and fields using this Serializer **/

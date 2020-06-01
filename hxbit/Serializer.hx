@@ -25,18 +25,12 @@ package hxbit;
 
 class Serializer {
 
-	static var UID = 0;
 	static var SEQ = 0;
 	static inline var SEQ_BITS = 8;
 	static inline var SEQ_MASK = 0xFFFFFFFF >>> SEQ_BITS;
 
 	public static function resetCounters() {
-		UID = 0;
 		SEQ = 0;
-	}
-
-	static inline function allocUID() {
-		return (SEQ << (32 - SEQ_BITS)) | (++UID);
 	}
 
 	static var CLASSES : Array<Class<Dynamic>> = [];
@@ -102,15 +96,6 @@ class Serializer {
 		return CLIDS[index] == 0;
 	}
 
-	public var refs : Map<Int,Serializable>;
-
-	/**
-		Set this before serializing in order to reaffect object ids starting UID
-	**/
-	public var remapIds(get, set) : Bool;
-
-	var remapObjs : Map<Serializable,Int>;
-	var newObjects : Array<Serializable>;
 	var out : haxe.io.BytesBuffer;
 	var input : haxe.io.Bytes;
 	var inPos : Int;
@@ -123,29 +108,14 @@ class Serializer {
 		if( CLIDS == null ) initClassIDS();
 	}
 
-	function set_remapIds(b) {
-		remapObjs = b ? new Map() : null;
-		return b;
-	}
-
-	inline function get_remapIds() return remapObjs != null;
-
-	function remap( s : Serializable ) {
-		if( remapObjs.exists(s) ) return;
-		remapObjs.set(s, s.__uid);
-		s.__uid = allocUID();
-	}
-
 	public function begin() {
 		out = new haxe.io.BytesBuffer();
-		refs = new Map();
 		knownStructs = [];
 	}
 
 	public function end() {
 		var bytes = out.getBytes();
 		out = null;
-		refs = null;
 		knownStructs = null;
 		return bytes;
 	}
@@ -153,7 +123,6 @@ class Serializer {
 	public function setInput(data, pos) {
 		input = data;
 		inPos = pos;
-		if( refs == null ) refs = new Map();
 		if( knownStructs == null ) knownStructs = [];
 	}
 
@@ -164,7 +133,6 @@ class Serializer {
 	}
 
 	public function unserialize<T:Serializable>( data : haxe.io.Bytes, c : Class<T>, startPos = 0 ) : T {
-		refs = new Map();
 		knownStructs = [];
 		setInput(data, startPos);
 		return getKnownRef(c);
@@ -493,24 +461,11 @@ class Serializer {
 		}
 	}
 
-	function addObjRef( s : Serializable ) {
-		addInt(s.__uid);
-	}
-
-	function getObjRef() {
-		return getInt();
-	}
-
 	public function addAnyRef( s : Serializable ) {
 		if( s == null ) {
 			addByte(0);
 			return;
 		}
-		if( remapIds ) remap(s);
-		addObjRef(s);
-		if( refs[s.__uid] != null )
-			return;
-		refs[s.__uid] = s;
 		var index = s.getCLID();
 		usedClasses[index] = true;
 		addCLID(index); // index
@@ -522,11 +477,6 @@ class Serializer {
 			addByte(0);
 			return;
 		}
-		if( remapIds ) remap(s);
-		addObjRef(s);
-		if( refs[s.__uid] != null )
-			return;
-		refs[s.__uid] = s;
 		var index = s.getCLID();
 		usedClasses[index] = true;
 		var clid = CLIDS[index];
@@ -536,19 +486,10 @@ class Serializer {
 	}
 
 	public function getAnyRef() : Serializable {
-		var id = getObjRef();
-		if( id == 0 ) return null;
-		if( refs[id] != null )
-			return cast refs[id];
-		var rid = id & SEQ_MASK;
-		if( UID < rid ) UID = rid;
 		var clidx = getCLID();
 		if( mapIndexes != null ) clidx = mapIndexes[clidx];
 		var i : Serializable = Type.createEmptyInstance(CLASSES[clidx]);
-		if( newObjects != null ) newObjects.push(i);
-		i.__uid = id;
 		i.unserializeInit();
-		refs[id] = i;
 		if( convert != null && convert[clidx] != null )
 			convertRef(i, convert[clidx]);
 		else
@@ -557,12 +498,6 @@ class Serializer {
 	}
 
 	public function getRef<T:Serializable>( c : Class<T>, clidx : Int ) : T {
-		var id = getObjRef();
-		if( id == 0 ) return null;
-		if( refs[id] != null )
-			return cast refs[id];
-		var rid = id & SEQ_MASK;
-		if( UID < rid ) UID = rid;
 		if( convert != null && convert[clidx] != null ) {
 			var conv = convert[clidx];
 			if( conv.hadCID ) {
@@ -580,10 +515,7 @@ class Serializer {
 			}
 		}
 		var i : T = Type.createEmptyInstance(c);
-		if( newObjects != null ) newObjects.push(i);
-		i.__uid = id;
 		i.unserializeInit();
-		refs[id] = i;
 		if( convert != null && convert[clidx] != null )
 			convertRef(i, convert[clidx]);
 		else
@@ -613,7 +545,6 @@ class Serializer {
 			schemas.push(schema);
 			classes.push(i);
 			addKnownRef(schema);
-			refs.remove(schema.__uid);
 		}
 		var schemaData = end();
 		begin();
@@ -677,7 +608,6 @@ class Serializer {
 			for( index in indexes ) {
 				var ourSchema = schemas[index];
 				var schema = getKnownRef(Schema);
-				refs.remove(schema.__uid);
 				if( ourSchema != null )
 					convert[mapIndexes[index]] = new Convert(Type.getClassName(CLASSES[mapIndexes[index]]),ourSchema, schema);
 			}

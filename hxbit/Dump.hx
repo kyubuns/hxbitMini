@@ -64,7 +64,7 @@ class Dump extends Serializer {
 			return "@"+id;
 		var clidx = getCLID();
 		var cl = hids[clidx];
-		var o = { _ : cl.name, __uid : id };
+		var o = { _ : cl.name };
 		drefs[id] = o;
 		dumpRefFields(o, cl.schema);
 		return o;
@@ -82,7 +82,7 @@ class Dump extends Serializer {
 			s = c.schema;
 			clname = c.name;
 		}
-		var o = { _ : clname, __uid : id };
+		var o = { _ : clname };
 		drefs[id] = o;
 		dumpRefFields(o, s);
 		return o;
