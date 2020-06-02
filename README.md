@@ -1,7 +1,8 @@
 # HxBitMini
 
 HxBitMini is a binary serialization library for Haxe.  
-Forked from [HxBit](https://github.com/HeapsIO/hxbit).
+Forked from [HxBit](https://github.com/HeapsIO/hxbit).  
+Serialized data size is smaller than HxBit.
 
 ## Comparison with [HxBit](https://github.com/HeapsIO/hxbit)
 
