@@ -571,7 +571,7 @@ class Macros {
 			pos : pos,
 			access : [AStatic],
 			meta : noCompletion,
-			kind : FVar(macro : Int),
+			kind : FVar(macro : Int, macro 0),
 		});
 		fields.push({
 			name : "initCLID",
