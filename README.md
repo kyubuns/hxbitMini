@@ -86,6 +86,8 @@ Just replace `hxbit` to `hxbitmini`.
 HxBitMini 1.0.0 is forked from code newer than HxBit 1.5.0. (The latest version that is now available to the public)  
 Please check [Network graph](https://github.com/HeapsIO/hxbit/network).
 
+---
+
 ## Installation
 
 Install through haxelib with `haxelib install hxbitmini` and use `-lib hxbitmini` to use it.
