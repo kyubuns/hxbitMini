@@ -79,7 +79,7 @@ The difference is more pronounced when many classes are included.
 
 ## HxBit to HxBitMini
 
-Just rewrite the hxbit to hxbitmini.
+Just replace `hxbit` to `hxbitmini`.
 
 ## Compatible with hxbit
 
