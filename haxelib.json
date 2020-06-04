@@ -3,7 +3,7 @@
 	"url" : "https://github.com/kyubuns/hxbitmini",
 	"license" : "BSD",
 	"description" : "Binary serialization library, serialized data size is smaller than hxbit",
-	"version" : "1.0.1",
+	"version" : "1.0.2",
 	"releasenote" : "",
 	"contributors" : ["kyubuns", "ncannasse"],
 	"dependencies" : {
